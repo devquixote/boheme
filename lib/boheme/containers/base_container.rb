@@ -1,7 +1,7 @@
 module Boheme::Containers
   class BaseContainer
     attr_reader :status, :id, :type
-    attr_accessor :parent_name, :container_name, :command, :image
+    attr_accessor :name, :command, :image
     STATUSES = [:NEW, :LAUNCHED, :READY, :EXECUTING, :FINISHING, :FINISHED, :FAILED]
     TYPES = [:TASK, :SERVICE]
 
@@ -18,11 +18,6 @@ module Boheme::Containers
       @dependencies = []
       @mounts = {}
       @type = type
-    end
-
-    def name
-      return "" if parent_name.nil? || container_name.nil?
-      "#{parent_name}:#{container_name}"
     end
 
     STATUSES.each do |status|
@@ -49,10 +44,15 @@ module Boheme::Containers
 
     def depends_on(other_container)
       @dependencies << other_container
+      true
     end
 
     def dependencies_ready?
       (@dependencies.map(&:ready?).uniq == [true])
+    end
+
+    def dependencies
+      @dependencies.dup
     end
 
     def mounts(map=nil)
