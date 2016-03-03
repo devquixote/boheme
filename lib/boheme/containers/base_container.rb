@@ -2,7 +2,7 @@ module Boheme::Containers
   class BaseContainer
     attr_reader :status, :id, :type
     attr_accessor :name, :command, :image
-    STATUSES = [:NEW, :LAUNCHED, :READY, :EXECUTING, :FINISHING, :FINISHED, :FAILED]
+    STATUSES = [:NEW, :LAUNCHED, :READY, :EXECUTING, :FINISHING, :SUCCESSFUL, :FAILED]
     TYPES = [:TASK, :SERVICE]
 
     def self.new_service
@@ -23,6 +23,10 @@ module Boheme::Containers
     STATUSES.each do |status|
       method_name = "#{status.downcase}?"
       define_method(method_name) {@status == status}
+    end
+
+    def finished?
+      status == :SUCCESSFUL || status == :FAILED
     end
 
     TYPES.each do |type|

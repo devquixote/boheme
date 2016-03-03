@@ -46,6 +46,26 @@ module Boheme::Containers
       end
     end
 
+    describe "#finished" do
+      it "should return true if status is SUCCESSFUL" do
+          container.instance_variable_set(:@status, :SUCCESSFUL)
+          expect(container.finished?).to eql(true)
+      end
+
+      it "should return true if status is FAILED" do
+          container.instance_variable_set(:@status, :FAILED)
+          expect(container.finished?).to eql(true)
+      end
+
+      non_terminal_statuses = BaseContainer::STATUSES - [:SUCCESSFUL, :FAILED]
+      non_terminal_statuses.each do |status|
+        it "should return false if status is #{status}" do
+            container.instance_variable_set(:@status, status)
+            expect(container.finished?).to eql(false)
+        end
+      end
+    end
+
     describe "#launch!" do
       it "should raise NotImplementedError" do
         expect{container.launch!}.to raise_error(NotImplementedError)
@@ -80,7 +100,7 @@ module Boheme::Containers
     end
 
     describe "#get_logs" do
-      it "hsould raise NotImplementedError" do
+      it "should raise NotImplementedError" do
         expect{container.get_logs}.to raise_error(NotImplementedError)
       end
     end
