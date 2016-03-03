@@ -1,16 +1,9 @@
 require 'spec_helper'
+require 'shared/test_container_factories'
 
 module Boheme
   describe Containers do
-    before do
-      Containers.service_factory do
-        Containers::EmulatedContainer.new_service
-      end
-
-      Containers.task_factory do
-        Containers::EmulatedContainer.new_task
-      end
-    end
+    include_context "test container factories"
 
     describe "#build_service" do
       it "should build using the specified service factory" do

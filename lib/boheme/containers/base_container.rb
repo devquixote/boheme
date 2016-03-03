@@ -16,6 +16,7 @@ module Boheme::Containers
     def initialize(type)
       @status = :NEW
       @dependencies = []
+      @dependents = []
       @mounts = {}
       @type = type
     end
@@ -38,6 +39,10 @@ module Boheme::Containers
       raise NotImplementedError
     end
 
+    def update_status
+      raise NotImplementedError
+    end
+
     def tear_down!
       raise NotImplementedError
     end
@@ -48,6 +53,7 @@ module Boheme::Containers
 
     def depends_on(other_container)
       @dependencies << other_container
+      other_container.depended_on_by(self)
       true
     end
 
@@ -59,12 +65,27 @@ module Boheme::Containers
       @dependencies.dup
     end
 
+    def dependents
+      @dependents.dup
+    end
+
+    def leaf?
+      @dependents.empty?
+    end
+
     def mounts(map=nil)
       if (map)
         @mounts.merge! map
       else
         @mounts
       end
+    end
+
+    protected
+
+    def depended_on_by(other_container)
+      @dependents << other_container
+      true
     end
   end
 end

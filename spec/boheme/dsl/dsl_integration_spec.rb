@@ -1,15 +1,8 @@
 require 'spec_helper'
+require 'shared/test_container_factories'
 
 context "Boheme DSL Integration Test" do
-  before do
-    Boheme::Containers.service_factory do
-      Boheme::Containers::EmulatedContainer.new_service
-    end
-
-    Boheme::Containers.task_factory do
-      Boheme::Containers::EmulatedContainer.new_task
-    end
-  end
+  include_context "test container factories"
 
   let(:boheme) do
     Boheme.parse do |boheme|

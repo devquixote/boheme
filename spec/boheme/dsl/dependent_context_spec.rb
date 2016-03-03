@@ -3,7 +3,7 @@ require_relative 'shared_dependent_context_spec'
 
 module Boheme::DSL
   describe DependentContext do
-    class Foo
+    class Foo < BaseContext
       include DependentContext
 
       def initialize(boheme)

@@ -68,10 +68,10 @@ module Boheme::Containers
           expect(container.finishing?).to eql(true)
         end
 
-        it "should change status to FINISHED after FINISHING" do
+        it "should change status to SUCCESSFUL after FINISHING" do
           container.launch!
           sleep(0.7)
-          expect(container.finished?).to eql(true)
+          expect(container.successful?).to eql(true)
         end
       end
 

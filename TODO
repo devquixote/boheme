@@ -1,15 +1,8 @@
-* Top-level BohemeCluster or somesuch
-  * 1 per dsl file
-  * Knows about all containers launched from dsl file
-  * Does not know about contaienrs launched from other files
-  * Given a file path, loads the file and launches all the containers
-  * If there are tasks, cluster is brought down when all tasks are complete by default
-    * Has a success or failure status based on what went down
-  * If there are no tasks, cluster lives in perpetuity
 * CLI
   * For single boheme file or directory of files
-  * Create a BohemeCluster for each
-  * Launch each BohemeCluster serially
+  * evaluate all the files
+  * periodically call for the Boheme::Instances to update their status
+  * Finish when all Boheme::Instances are done
 * Links to all containers established in the DSL
 * Env variables in the DSL passed to contaienrs
 * Specify custom ports for containers

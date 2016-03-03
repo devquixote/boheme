@@ -33,10 +33,14 @@ module Boheme::Containers
           @status = :FINISHING
           @logs << "#{name} FINISHING"
           sleep(delay/2)
-          @status = :FINISHED
+          @status = :SUCCESSFUL
           @logs << "#{name} FINISHED"
         end
       end
+    end
+
+    def update_status
+      # do nothing
     end
 
     def tear_down!

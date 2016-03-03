@@ -72,6 +72,12 @@ module Boheme::Containers
       end
     end
 
+    describe "#update_status" do
+      it "should raise NotImplementedError" do
+        expect{container.update_status}.to raise_error(NotImplementedError)
+      end
+    end
+
     describe "#dependencies_ready?" do
       let(:dependency) do
         BaseContainer.new(:SERVICE).tap do |dependency|
@@ -89,6 +95,26 @@ module Boheme::Containers
       it "should return false if any dependencies are not ready" do
         def dependency.ready?
           false
+        end
+      end
+    end
+
+    describe "dependent methods" do
+      let!(:dependent) { BaseContainer.new(:SERVICE) }
+
+      it "should allow dependents to be declared and retrieved" do
+        dependent.depends_on container
+        expect(container.dependents).to eql([dependent])
+      end
+
+      describe "#leaf?" do
+        it "should return false if the container has any dependents" do
+          dependent.depends_on container
+          expect(container.leaf?).to eql(false)
+        end
+
+        it "should return true if the container has no dependents" do
+          expect(container.leaf?).to eql(true)
         end
       end
     end
