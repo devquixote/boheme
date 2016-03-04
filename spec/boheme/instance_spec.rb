@@ -27,13 +27,13 @@ module Boheme
     end
 
     before do
-      instance.interpret!
+      instance.interpret
       instance.launch!
       allow(service).to receive(:name).and_return("test:service")
       allow(task).to receive(:name).and_return("test:task")
     end
 
-    describe "#interpret!" do
+    describe "#interpret" do
       it "should build all containers" do
         # interpret called in before block
         expect(instance.containers).to_not be_empty

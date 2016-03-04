@@ -20,8 +20,6 @@ module Boheme
   def self.parse(&source)
     instance = Instance.new(&source)
     Boheme.register instance
-    instance.interpret!
-    instance.launch!
     instance
   end
 end

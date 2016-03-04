@@ -1,15 +1,16 @@
 require 'spec_helper'
-require 'shared/test_container_factories'
 
 context "Boheme DSL Integration Test" do
-  include_context "test container factories"
-
-  let(:boheme) do
-    Boheme.parse do |boheme|
+  before(:all) do
+    @boheme = boheme = Boheme.parse do |boheme|
       boheme.driver :docker_cli
       boheme.name "project"
       boheme.image "ruby"
 
+      @counter = (@counter || 0) + 1
+      if @counter > 5
+        raise "FAIL"
+      end
       boheme.infrastructure :mysql do
         image "mysql"
       end
@@ -22,11 +23,23 @@ context "Boheme DSL Integration Test" do
         command "bundle && bundle exec rake integration_tests"
       end
     end
+
+    Boheme::Containers.service_factory do
+      Boheme::Containers::EmulatedContainer.new_service(boheme, 0.1)
+    end
+
+    Boheme::Containers.task_factory do
+      Boheme::Containers::EmulatedContainer.new_task(boheme, 0.1)
+    end
+
+    boheme.interpret.launch!
   end
-  let(:containers) { boheme.launch! }
-  let(:mysql) { containers.detect{|c| c.name == "project:mysql"} }
-  let(:app) { containers.detect{|c| c.name == "project:app"} }
-  let(:tests) { containers.detect{|c| c.name == "project:tests"} }
+
+  let(:boheme) { @boheme }
+  let(:containers) { boheme.containers }
+  let(:mysql) { boheme.container("project:mysql") }
+  let(:app) { boheme.container("project:app") }
+  let(:tests) { boheme.container("project:tests") }
 
   describe "mysql container" do
     it "should use the mysql image" do

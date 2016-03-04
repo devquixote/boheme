@@ -7,11 +7,11 @@ module Boheme
       @containers = []
     end
 
-    def interpret!
+    def interpret
       @root = DSL::RootContext.new(self)
       root.mounts Dir.pwd => "/usr/local/src/project"
       source.call(root)
-      true
+      self
     end
 
     def launch!
