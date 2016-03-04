@@ -1,6 +1,8 @@
+require 'ostruct'
+
 module Boheme::Containers
   class BaseContainer
-    attr_reader :status, :id, :type
+    attr_reader :boheme, :status, :id, :type, :dependencies, :dependents
     attr_accessor :name, :command, :image
     STATUSES = [:NEW, :LAUNCHED, :READY, :EXECUTING, :FINISHING, :SUCCESSFUL, :FAILED]
     TYPES = [:TASK, :SERVICE]
@@ -13,7 +15,8 @@ module Boheme::Containers
       raise NotImplementedError
     end
 
-    def initialize(type)
+    def initialize(boheme, type)
+      @boheme = boheme
       @status = :NEW
       @dependencies = []
       @dependents = []
@@ -51,22 +54,14 @@ module Boheme::Containers
       raise NotImplementedError
     end
 
-    def depends_on(other_container)
-      @dependencies << other_container
-      other_container.depended_on_by(self)
-      true
+    def depends_on(other_name)
+      boheme.set_dependency(other_name, self)
     end
+
 
     def dependencies_ready?
-      (@dependencies.map(&:ready?).uniq == [true])
-    end
-
-    def dependencies
-      @dependencies.dup
-    end
-
-    def dependents
-      @dependents.dup
+      return true if dependencies.empty?
+      (dependencies.map(&:ready?).uniq == [true])
     end
 
     def leaf?
@@ -79,13 +74,6 @@ module Boheme::Containers
       else
         @mounts
       end
-    end
-
-    protected
-
-    def depended_on_by(other_container)
-      @dependents << other_container
-      true
     end
   end
 end

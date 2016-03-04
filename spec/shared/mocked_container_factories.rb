@@ -4,6 +4,11 @@ RSpec.shared_context "mocked container factories" do
     methods.each do |method|
       allow(obj).to receive(method)
     end
+
+    dependencies = []
+    dependents = []
+    allow(obj).to receive(:dependencies).and_return(dependencies)
+    allow(obj).to receive(:dependents).and_return(dependents)
   end
 
   before do

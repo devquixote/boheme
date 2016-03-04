@@ -25,11 +25,19 @@ module Boheme
     end
 
     def containers
-      @containers.dup
+      @containers
     end
 
     def container(name)
       @containers.detect{|c| c.name == name}
+    end
+
+    def set_dependency(dependency_name, dependent_container)
+      dependency_container = container(full_name(dependency_name))
+      raise ArgumentError, "No container named #{dependency_name}" unless dependency_container
+      dependent_container.dependencies << dependency_container
+      dependency_container.dependents << dependent_container
+      true
     end
 
     def services
@@ -98,6 +106,14 @@ module Boheme
       leafs = tasks.select(&:leaf?)
       finished_leafs = leafs.select(&:finished?)
       leafs.size == finished_leafs.size
+    end
+
+    def full_name(name)
+      if name =~ /:/
+        name
+      else
+        "#{root.name}:#{name}"
+      end
     end
   end
 end

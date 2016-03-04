@@ -1,15 +1,14 @@
-RSpec.shared_examples "container builder" do
-    before do
-      Boheme::Containers.service_factory do
-        Boheme::Containers::EmulatedContainer.new_service
-      end
+require 'shared/test_container_factories'
 
-      Boheme::Containers.task_factory do
-        Boheme::Containers::EmulatedContainer.new_task
-      end
-    end
+RSpec.shared_examples "container builder" do
+    include_context "test container factories"
 
     let(:container) { context.build! }
+    let!(:dependency) do
+      boheme.build_service.tap do |service|
+        service.name = "project:mysql"
+      end
+    end
     describe "#build!" do
       it "should return container w/context name" do
         expect(container.name).to eql("#{root.name}:#{context.name}")
@@ -29,7 +28,7 @@ RSpec.shared_examples "container builder" do
       end
 
       it "should return container w/dependencies" do
-        expect(container.dependencies).to eql(["project:mysql"])
+        expect(container.dependencies).to eql([dependency])
       end
     end
 end

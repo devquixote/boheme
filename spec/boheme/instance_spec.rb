@@ -76,6 +76,22 @@ module Boheme
       end
     end
 
+    describe "#set_dependency" do
+      it "should raise ArgumentError if the dependency is not found" do
+        expect{instance.set_dependency("foo", task)}.to raise_error(ArgumentError)
+      end
+
+      it "should add the dependency to the dependent's dependencies" do
+        instance.set_dependency(service.name, task)
+        expect(task.dependencies).to eql([service])
+      end
+
+      it "should add the dependent to the dependencies dependents" do
+        instance.set_dependency(service.name, task)
+        expect(service.dependents).to eql([task])
+      end
+    end
+
     describe "#services" do
       it "should return all services within the boheme instance" do
         expect(instance.services).to eql([service])

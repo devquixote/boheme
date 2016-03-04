@@ -2,8 +2,20 @@ require 'spec_helper'
 
 module Boheme::Containers
   describe BaseContainer do
+    let(:root) do
+      double(Boheme::DSL::RootContext).tap do |root|
+        allow(root).to receive(:name).and_return("root")
+      end
+    end
+    let(:boheme) do
+      double(Boheme::Instance).tap do |boheme|
+        allow(boheme).to receive(:container)
+        allow(boheme).to receive(:root).and_return(root)
+      end
+    end
     let(:container) do
-      BaseContainer.new(:SERVICE).tap do |container|
+      BaseContainer.new(boheme, :SERVICE).tap do |container|
+        container.name = "container"
         #container.parent_name "project"
         #container.container_name "mysql"
       end
@@ -80,9 +92,17 @@ module Boheme::Containers
 
     describe "#dependencies_ready?" do
       let(:dependency) do
-        BaseContainer.new(:SERVICE).tap do |dependency|
-          container.depends_on dependency
+        BaseContainer.new(boheme, :SERVICE).tap do |dependency|
+          allow(boheme).to receive(:container).and_return(dependency)
+          dependency.name = "dependency"
+          container.dependencies << dependency
+          dependency.dependents << container
         end
+      end
+
+      it "should return true if there are no dependencies" do
+        container.instance_variable_set(:@dependencies, [])
+        expect(container.dependencies_ready?).to eql(true)
       end
 
       it "should return true if all dependencies are ready" do
@@ -100,16 +120,20 @@ module Boheme::Containers
     end
 
     describe "dependent methods" do
-      let!(:dependent) { BaseContainer.new(:SERVICE) }
+      let(:dependent) { BaseContainer.new(boheme, :SERVICE) }
 
-      it "should allow dependents to be declared and retrieved" do
-        dependent.depends_on container
-        expect(container.dependents).to eql([dependent])
+      before do
+      end
+
+      it "should have Boheme::Instance setup the dependency relationship" do
+        allow(boheme).to receive(:set_dependency).with("container", dependent)
+        dependent.depends_on container.name
+        expect(dependent.boheme).to have_received(:set_dependency).with("container", dependent)
       end
 
       describe "#leaf?" do
-        it "should return false if the container has any dependents" do
-          dependent.depends_on container
+        it "should returs false if the container has any dependents" do
+          container.instance_variable_set(:@dependents, [dependent])
           expect(container.leaf?).to eql(false)
         end
 

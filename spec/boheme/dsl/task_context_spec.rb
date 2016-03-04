@@ -7,13 +7,13 @@ require_relative 'shared_build_context_spec'
 
 module Boheme::DSL
   describe TaskContext do
-    let(:boheme) { Boheme::Instance.new {} }
-    let(:root) do
+    let!(:boheme) { Boheme::Instance.new {} }
+    let!(:root) do
       Boheme::DSL::RootContext.new(boheme).tap do |root|
         root.name "project"
       end
     end
-    let(:context) do
+    let!(:context) do
       TaskContext.new(boheme, "task").tap do |task_ctx|
         task_ctx.parent = root
         task_ctx.image "java"

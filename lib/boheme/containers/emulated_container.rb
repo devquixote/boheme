@@ -2,66 +2,83 @@ module Boheme::Containers
   class EmulatedContainer < BaseContainer
     attr_accessor :delay
     attr_reader :current_thread
-    attr_reader :logs
 
-    def self.new_service(delay=3)
-      EmulatedContainer.new(:SERVICE, delay)
+    def self.new_service(boheme, delay=3)
+      EmulatedContainer.new(boheme, :SERVICE, delay)
     end
 
-    def self.new_task(delay=3)
-      EmulatedContainer.new(:TASK, delay)
+    def self.new_task(boheme, delay=3)
+      EmulatedContainer.new(boheme, :TASK, delay)
     end
 
-    def initialize(type, delay=3)
-      super(type)
+    def initialize(boheme, type, delay=3)
+      super(boheme, type)
       @delay = delay
-      @logs = []
+      @logs = ["#{name} entering NEW"]
     end
 
     def launch!
-      @status = :LAUNCHED
-      @logs << "#{name} LAUNCHED"
-      @current_thread = Thread.new do
-        sleep(delay)
-        if (service?)
-          @status = :READY
-          @logs << "#{name} READY"
-        else
-          @status = :EXECUTING
-          @logs << "#{name} EXECUTING"
-          sleep(delay)
-          @status = :FINISHING
-          @logs << "#{name} FINISHING"
-          sleep(delay/2)
-          @status = :SUCCESSFUL
-          @logs << "#{name} FINISHED"
+      enter :LAUNCHED
+      @last_update = Time.now
+    end
+
+
+    def update_status
+      if dependencies_ready?
+        if Time.now - @last_update > delay
+          if status == :FINISHING
+            enter :SUCCESSFUL
+          elsif type == :SERVICE
+            enter next_service_status
+          elsif type == :TASK
+            enter next_task_status
+          else
+            raise "Unknown task type: #{type}"
+          end
         end
       end
     end
 
-    def update_status
-      # do nothing
-    end
-
-    def tear_down!
-      Thread.kill @current_thread if @current_thread
-      @status = :FINISHING
-      @logs << "#{name} FINISHING"
-      @current_thread = Thread.new do
-        sleep(delay)
-        @status = :FINISHED
-        @logs << "#{name} FINISHED"
+    def next_service_status
+      case @status
+      when :NEW
+        :LAUNCHED
+      else
+        :READY
       end
     end
 
-    def logs
-      @logs.join("\n")
+    def next_task_status
+      case @status
+      when :NEW
+        :LAUNCHED
+      when :LAUNCHED
+        :EXECUTING
+      when :EXECUTING
+        :FINISHING
+      when :FINISHING
+        :SUCCESSFUL
+      else
+        raise "Unknown status #{@status}"
+      end
+    end
+
+    def enter(status)
+      @status = status
+      @logs << "#{name} entering #{status}"
+      @status
+    end
+
+    def tear_down!
+      enter :FINISHING
+    end
+
+    def get_logs
+      @logs
     end
 
     def fail!
-      Thread.kill @current_thread if @current_thread
-      @status = :FAILED
-      @logs << "#{name} FAILED"
+      enter :FAILED
     end
   end
 end
