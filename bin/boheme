@@ -1,0 +1,64 @@
+#!/usr/bin/env ruby
+
+# TODO delete me
+$: << File.expand_path("../../lib", __FILE__)
+
+require 'ostruct'
+require 'optparse'
+require 'find'
+require "boheme"
+
+def fail(parser, status, msg)
+  STDERR.print("ERROR: #{msg}\n")
+  STDERR.print("\n")
+  STDERR.print(parser)
+  exit(status)
+end
+
+options = OpenStruct.new platform: :docker, emulated: false, success_on: :all
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: boheme [OPTIONS] [DSL_FILE | DIRECTORY]"
+  opts.separator ""
+  opts.separator "Evaluates a Boheme DSL file or all Boheme DSL files found in a directory to execute"
+  opts.separator "containerized services and tasks as a coordinated process.  This can be used for"
+  opts.separator "things such as running application dependencies in a development environment,"
+  opts.separator "running a distirbuted application on a single node in one-off non-prod environments,"
+  opts.separator "integration tests of distributed apps using real dependencies, build pipelines and"
+  opts.separator "others."
+  opts.separator ""
+  opts.separator "Options:"
+
+  opts.on("-p", "--platform [PLATFORM", "The platform used to run the containers described\n" +
+          "                                     in the boheme DSL files.  Currently only 'docker'\n" +
+          "                                     is supported.  Defaults to 'docker'.") do |platform|
+    options.platform = platform.downcase.to_sym
+  end
+  opts.on("-e", "--emulated", "Run with emulated containers.  Defaults to false.") do
+    options.emulated = true
+  end
+  # TODO parallelize flag
+  opts.on("-s", "--success-on [CONDITION]", "Process should exit w/0 status when [all] succeed\n" +
+          "                                     or [any] succeed.  Defaults to all") do |condition|
+    options.success_on = condition.downcase.to_sym
+  end
+end
+parser.parse!
+
+# TODO move to validator
+# TODO platform validation
+unless [:all, :any].include? options.success_on
+  fail(parser, -1, "-s #{options.success_on}  must be all or any")
+end
+
+# TODO move to validator
+if ARGV.empty?
+  fail(parser, -1, "You must specify a path to at least one DSL file for boheme to evaluate")
+end
+
+# TODO move to validator
+target = ARGV.first
+unless File.exist?(target)
+  fail(parser, -1, "#{target} doesn't exist!")
+end
+
+Boheme::Runner.new(target, options).run!

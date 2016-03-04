@@ -27,6 +27,8 @@ module Boheme
     end
 
     before do
+      instance.service_factory = service_factory
+      instance.task_factory = task_factory
       instance.interpret
       instance.launch!
       allow(service).to receive(:name).and_return("test:service")

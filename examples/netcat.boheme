@@ -1,0 +1,14 @@
+Boheme.parse do |boheme|
+  # Start a netcat server that will emit a hello message on connect
+  boheme.service :server do
+    image "alpine:3.1"
+    command "nc -v -lk -p 9999 -e echo 'Hello from the server'"
+  end
+
+  # Connect to the netcat server, making sure we terminate within 3 seconds
+  boheme.task :client do
+    image "alpine:3.1"
+    dependent_on :server
+    command "nc -v server 9999 & export CLIENT=$!; sleep 3; echo 'disconnecting...'; kill -9 $CLIENT"
+  end
+end

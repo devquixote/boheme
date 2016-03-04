@@ -1,12 +1,11 @@
-require 'set'
-
 require "boheme/version"
 require "boheme/containers"
 require "boheme/dsl"
 require "boheme/instance"
+require "boheme/runner"
 
 module Boheme
-  @instances = Set.new
+  @instances = []
   class << self
     def register(instance)
       @instances << instance

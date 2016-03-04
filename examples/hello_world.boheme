@@ -1,0 +1,8 @@
+Boheme.parse do |boheme|
+  boheme.name "hello_world"
+
+  boheme.task :message do
+    image "alpine:3.1"
+    command "echo 'hello world'"
+  end
+end

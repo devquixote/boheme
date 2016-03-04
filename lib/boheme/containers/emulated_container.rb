@@ -14,10 +14,11 @@ module Boheme::Containers
     def initialize(boheme, type, delay=3)
       super(boheme, type)
       @delay = delay
-      @logs = ["#{name} entering NEW"]
+      @logs = []
     end
 
     def launch!
+      log "Entering NEW"
       enter :LAUNCHED
       @last_update = Time.now
     end
@@ -36,7 +37,13 @@ module Boheme::Containers
             raise "Unknown task type: #{type}"
           end
         end
+      else
+        log "Waiting on dependencies"
       end
+    end
+
+    def log(msg)
+      @logs << LogEntry.new(Time.now, name, msg)
     end
 
     def next_service_status
@@ -64,8 +71,10 @@ module Boheme::Containers
     end
 
     def enter(status)
-      @status = status
-      @logs << "#{name} entering #{status}"
+      if status != @status
+        @status = status
+        log "Entering #{status}"
+      end
       @status
     end
 

@@ -1,6 +1,9 @@
 module Boheme
   class Instance
+    attr_accessor :service_factory, :task_factory
     attr_reader :source, :root
+    attr_accessor :path
+
     def initialize(&source)
       raise ArgumentError, "No source block given" unless source
       @source = lambda &source
@@ -81,13 +84,13 @@ module Boheme
     end
 
     def build_service
-      Containers.build_service.tap do |service|
+      service_factory.call(self).tap do |service|
         @containers << service
       end
     end
 
     def build_task
-      Containers.build_task.tap do |task|
+      task_factory.call(self).tap do |task|
         @containers << task
       end
     end

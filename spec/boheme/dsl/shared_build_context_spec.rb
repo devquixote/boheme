@@ -9,6 +9,7 @@ RSpec.shared_examples "container builder" do
         service.name = "project:mysql"
       end
     end
+
     describe "#build!" do
       it "should return container w/context name" do
         expect(container.name).to eql("#{root.name}:#{context.name}")

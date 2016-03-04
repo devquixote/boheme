@@ -1,12 +1,18 @@
 RSpec.shared_context "test container factories" do
-  let(:boheme) { Boheme::Instance.new {} }
-  before do
-    Boheme::Containers.service_factory do
+  let(:service_factory) do
+    lambda do |boheme|
       Boheme::Containers::EmulatedContainer.new_service(boheme, 0.1)
     end
+  end
 
-    Boheme::Containers.task_factory do
+  let(:task_factory) do
+    lambda do |boheme|
       Boheme::Containers::EmulatedContainer.new_task(boheme, 0.1)
     end
+  end
+
+  before do
+    boheme.service_factory = service_factory
+    boheme.task_factory = task_factory
   end
 end

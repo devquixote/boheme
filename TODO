@@ -1,14 +1,14 @@
+Bare minimum
 * CLI
-  * For single boheme file or directory of files
-  * evaluate all the files
-  * periodically call for the Boheme::Instances to update their status
-  * Finish when all Boheme::Instances are done
+  * Validation of config
+  * Specs of Boheme::Runner
 * Links to all containers established in the DSL
 * Env variables in the DSL passed to contaienrs
 * Specify custom ports for containers
 * Example project w/working CLI
 * Docker platform
   * change docker_cli to docker
+
+Nice to have
 * Stdout streaming
 * Parallelization
-* Logging

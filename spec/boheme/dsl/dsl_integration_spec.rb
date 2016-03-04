@@ -1,34 +1,35 @@
 require 'spec_helper'
+require 'shared/test_container_factories'
 
 context "Boheme DSL Integration Test" do
   before(:all) do
-    @boheme = boheme = Boheme.parse do |boheme|
-      boheme.driver :docker_cli
-      boheme.name "project"
-      boheme.image "ruby"
+    @boheme = boheme = Boheme.parse do |root|
+      root.driver :docker_cli
+      root.name "project"
+      root.image "ruby"
 
       @counter = (@counter || 0) + 1
       if @counter > 5
         raise "FAIL"
       end
-      boheme.infrastructure :mysql do
+      root.infrastructure :mysql do
         image "mysql"
       end
 
-      boheme.app :app do
+      root.app :app do
         command "bundle && bundle exec rails server"
       end
 
-      boheme.tests :tests do
+      root.tests :tests do
         command "bundle && bundle exec rake integration_tests"
       end
     end
 
-    Boheme::Containers.service_factory do
+    boheme.service_factory = lambda do |boheme|
       Boheme::Containers::EmulatedContainer.new_service(boheme, 0.1)
     end
 
-    Boheme::Containers.task_factory do
+    boheme.task_factory = lambda do |boheme|
       Boheme::Containers::EmulatedContainer.new_task(boheme, 0.1)
     end
 

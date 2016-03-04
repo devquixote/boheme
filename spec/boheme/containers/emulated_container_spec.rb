@@ -44,11 +44,11 @@ module Boheme::Containers
           container.tear_down!
           sleep(0.3)
           container.update_status
-          expect(logs[0]).to match(/NEW/)
-          expect(logs[1]).to match(/LAUNCHED/)
-          expect(logs[2]).to match(/READY/)
-          expect(logs[3]).to match(/FINISHING/)
-          expect(logs[4]).to match(/SUCCESSFUL/)
+          expect(logs[0].entry).to match(/NEW/)
+          expect(logs[1].entry).to match(/LAUNCHED/)
+          expect(logs[2].entry).to match(/READY/)
+          expect(logs[3].entry).to match(/FINISHING/)
+          expect(logs[4].entry).to match(/SUCCESSFUL/)
         end
       end
     end
@@ -100,11 +100,11 @@ module Boheme::Containers
           container.update_status
           sleep(0.3)
           container.update_status
-          expect(logs[0]).to match(/NEW/)
-          expect(logs[1]).to match(/LAUNCHED/)
-          expect(logs[2]).to match(/EXECUTING/)
-          expect(logs[3]).to match(/FINISHING/)
-          expect(logs[4]).to match(/SUCCESSFUL/)
+          expect(logs[0].entry).to match(/NEW/)
+          expect(logs[1].entry).to match(/LAUNCHED/)
+          expect(logs[2].entry).to match(/EXECUTING/)
+          expect(logs[3].entry).to match(/FINISHING/)
+          expect(logs[4].entry).to match(/SUCCESSFUL/)
         end
       end
     end
@@ -145,7 +145,7 @@ module Boheme::Containers
       it "should append FAILED event to logs" do
         sleep(0.1)
         container.fail!
-        expect(container.get_logs.last).to match(/FAILED/)
+        expect(container.get_logs.last.entry).to match(/FAILED/)
       end
     end
   end
